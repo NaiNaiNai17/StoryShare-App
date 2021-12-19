@@ -1,14 +1,20 @@
+const path = require('path')
 const express = require('express')
 const dotenv = require('dotenv')
 const mongoose = require('mongoose')
 const morgan = require('morgan') 
 const exphbs = require('express-handlebars')
+const passport = require('passport')
+const session = require('express-session')
 // const { engine } = require ('express-handlebars');
 const connectDB = require('./config/db')
 
 
 //{path:'./config/config.env'} later
 dotenv.config() 
+
+//passport config
+require('./config/passport', passport)
 connectDB()
 const app = express()
 
@@ -28,6 +34,19 @@ app.engine(
     })
   )
   app.set('view engine', '.hbs')
+//Session Middleware
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized:false
+  
+}))
+
+//Passport Middleware
+  app.use(passport.initialize())
+  app.use(passport.session())
+  //static folder
+  app.use(express.static(path.join(__dirname, 'public')))
 // app.engine('handlebars', engine());
 // app.set('view engine', 'handlebars')
 // app.set('views', './views')
