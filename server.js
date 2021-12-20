@@ -6,40 +6,54 @@ const morgan = require('morgan')
 const exphbs = require('express-handlebars')
 const passport = require('passport')
 const session = require('express-session')
-// const { engine } = require ('express-handlebars');
+const MongoStore = require('connect-mongo')
 const connectDB = require('./config/db')
 
 
-//passport config
+
+//Passport config
 require('./config/passport.js')(passport)
-// const strategy = require('./config/passport');
-// const initialize = (passport) =>{
-//   passport.use('google', strategy.GoogleStrategy)
-// }
+
+
 connectDB()
 const app = express()
 
-//logging using morgan
+//Parse body
+app.use(express.urlencoded({extended:true}));
+app.use(express.json());
+
+//Logging using morgan
 if (process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'))
 }
+//handlebar helpers
+const { formatDate, stripTags, truncate } = require('./helpers/hbs')
 
-
-//handlebars template engine
+//Handlebars template engine
 app.engine(
     '.hbs',
-    exphbs.engine({
-     
-      defaultLayout: 'main',
+    exphbs.engine({ 
+      helpers:{
+        formatDate,
+        stripTags,
+        truncate,
+      },
+     defaultLayout: 'main',
       extname: '.hbs',
     })
   )
   app.set('view engine', '.hbs')
+
+
 //Session Middleware
 app.use(session({
-  secret: 'keyboard cat',
+  secret: 'shared trips',
   resave: false,
-  saveUninitialized:false
+  saveUninitialized:false,
+  store: MongoStore.create({
+    mongoUrl:process.env.MONGO_URI,
+    
+  })
   
 }))
 
@@ -48,13 +62,13 @@ app.use(session({
   app.use(passport.session())
   //static folder
   app.use(express.static(path.join(__dirname, 'public')))
-// app.engine('handlebars', engine());
-// app.set('view engine', 'handlebars')
-// app.set('views', './views')
 
-//routes
-app.use('/', require('./routes/index'))
+//Routes
+app.use('/',  require('./routes/index'))
 app.use('/auth', require('./routes/auth'))
+app.use('/stories', require('./routes/stories'))
+
+
 const PORT = process.env.PORT || 5000 
 app.listen(PORT,() => {
      console.log('Server started on port' , PORT)
