@@ -27,7 +27,7 @@ if (process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'))
 }
 //handlebar helpers
-const { formatDate, stripTags, truncate } = require('./helpers/hbs')
+const { formatDate, stripTags, truncate, editIcon } = require('./helpers/hbs')
 
 //Handlebars template engine
 app.engine(
@@ -37,6 +37,7 @@ app.engine(
         formatDate,
         stripTags,
         truncate,
+        editIcon
       },
      defaultLayout: 'main',
       extname: '.hbs',
@@ -60,6 +61,15 @@ app.use(session({
 //Passport Middleware
   app.use(passport.initialize())
   app.use(passport.session())
+
+//set global variable so auth 
+//middleware has access to user within template
+app.use((req,res,next)=>{
+  res.locals.user = req.user
+  ||null
+  next()
+})
+
   //static folder
   app.use(express.static(path.join(__dirname, 'public')))
 
