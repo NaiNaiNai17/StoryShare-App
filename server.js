@@ -4,6 +4,7 @@ const dotenv = require('dotenv').config()
 const mongoose = require('mongoose')
 const morgan = require('morgan') 
 const exphbs = require('express-handlebars')
+const methodOverride = require('method-override')
 const passport = require('passport')
 const session = require('express-session')
 const MongoStore = require('connect-mongo')
@@ -22,12 +23,23 @@ const app = express()
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
 
+//Method override to use put and delete
+app.use(
+  methodOverride(function(req, res){
+    if (req.body && typeof req.body === 'object' && '_method' in req.body) {
+      // look in urlencoded POST bodies and delete it
+      let method = req.body._method
+      delete req.body._method
+      return method
+    }
+  })
+)
 //Logging using morgan
 if (process.env.NODE_ENV === 'development'){
     app.use(morgan('dev'))
 }
 //handlebar helpers
-const { formatDate, stripTags, truncate, editIcon } = require('./helpers/hbs')
+const { formatDate, stripTags, truncate, editIcon, select } = require('./helpers/hbs')
 
 //Handlebars template engine
 app.engine(
@@ -37,7 +49,8 @@ app.engine(
         formatDate,
         stripTags,
         truncate,
-        editIcon
+        editIcon,
+        select
       },
      defaultLayout: 'main',
       extname: '.hbs',
@@ -65,8 +78,7 @@ app.use(session({
 //set global variable so auth 
 //middleware has access to user within template
 app.use((req,res,next)=>{
-  res.locals.user = req.user
-  ||null
+  res.locals.user = req.user || null
   next()
 })
 
