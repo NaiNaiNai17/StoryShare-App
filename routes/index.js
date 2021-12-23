@@ -3,7 +3,11 @@ const router = express.Router()
 const { ensureAuth, ensureGuest} = require('../middleware/auth')
 const Story = require('../models/Story')
 
-//login and landing page
+//Register and login email
+router.post('/register', controller.registerUser);
+router.post('/login', controller.login);
+
+//Login Google and landing page
  router.get('/', ensureGuest,(req,res)=>{
     res.render('login',{
         layout: 'login'

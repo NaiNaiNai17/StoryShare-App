@@ -59,6 +59,8 @@ app.engine(
   app.set('view engine', '.hbs')
 
 
+
+
 //Session Middleware
 app.use(session({
   secret: 'shared trips',

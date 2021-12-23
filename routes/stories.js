@@ -1,5 +1,6 @@
 const express = require('express')
 const router = express.Router()
+const controller = require('../controller/userController')
 const  { ensureAuth } = require('../middleware/auth')
 const Story = require('../models/Story')
 

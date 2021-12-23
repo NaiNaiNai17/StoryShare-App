@@ -14,11 +14,16 @@ router.get('/google/callback', passport.authenticate('google', {failureRedirect:
 })
 
 
-// @desc Logout user
+// @desc Logout user with google
 //@route /auth/logout
 
 router.get('/logout', (req,res) =>{
     req.logout()
     res.redirect('/')
 })
+
+// register user with email +
+router.post('/register', controller.registerUser);
+// Login user with email and password
+router.post('/login', controller.login);
 module.exports = router;
