@@ -6,7 +6,7 @@ App uses node js, express, handlebars. It implements google auth and email(still
 
 You can try it out on Glitch https://storyshare-journal.glitch.me
 
-/
+
 
 
 
